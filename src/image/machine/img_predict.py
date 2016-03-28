@@ -18,9 +18,6 @@ from data_pickle import *
 from pylab import *
 
 
-
-
-
   
 # Multinomial Naive Bayes Classifier  
 def naive_bayes_classifier(train_x, train_y):  
@@ -239,7 +236,7 @@ def img_machine_test():
                   'f_influence':(['影响小','影响大'],[59]),
                   }
     target_name = ['gender','term','edu','act_habit_2','act_habit_3','act_level','act_level_two','influence','influence_two','user_influence']
-    target_name = ['user_influence','f_influence']
+    target_name = ['act_habit_2']
     for predict_lable in target_name:
         #predict_lable = 'influence'#要预测的标签
         print 
@@ -250,8 +247,8 @@ def img_machine_test():
             X,Y = cut_user(X,target)
         delline = [41,40,39,38,37,36,35,34,33,32,31,30,29,28,27,26,25,24,23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0]
 #         delline = [40,39,38,36,34,33,32,31,29,28,27,25,24,23,21,20,19,17,16,15,14,12,11,10,8,7,5,4,2,1,0]
-        delline = [61,60,59,58,57,56,55,54,53,52,51,50,49,48,47,46,45,44,43,42]
-        delline = [61,60,59,58,57,56,55,54,44,43,42]
+        delline = [62,61,60,59,58,57,56,55,54,53,52,51,50,49,48,47,46,45,44,43,42]
+#         delline = [61,60,59,58,57,44,43,42]
 #         delline = [61,60,59]
         X = delFeatures(data, delline)
         print predict_lable
@@ -492,9 +489,9 @@ def followInfluence():
 
 if __name__ == '__main__':  
     
-    followInfluence()
-    #cross_validation_test()
-#     img_machine_test()
+#     followInfluence()
+#     cross_validation_test()
+    img_machine_test()
     
     
     

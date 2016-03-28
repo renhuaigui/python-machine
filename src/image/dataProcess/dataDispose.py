@@ -123,7 +123,7 @@ def dispose(data,target):
 #     for i in range(len(dataset.T[54])):
 #         print user[i],dataset.T[54][i],dataset.T[59][i]
     print dataset.T[54]
-    pltCDF(dataset.T[54])
+    pltCDF(influencetr)
     for i in range(len(user)):
         if dataset.T[59][i]<=0.01:
             influence_two.append(0)
@@ -214,7 +214,7 @@ if __name__ == '__main__':
     dataset = pickle.load(open(path,"rb"))
     data,target=dispose(dataset.data, dataset.target)
     dataset=dataPickle(data,target)
-    pickle.dump(dataset,open(writePath,"wb"),True)
+#     pickle.dump(dataset,open(writePath,"wb"),True)
 
     
     print '\n----------------------'
