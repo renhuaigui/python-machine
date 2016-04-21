@@ -9,7 +9,7 @@ from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
 from scipy import linalg
 from numpy import *
-from readData import *
+
 
 def dataKmeans(k,data):
     kmeans = KMeans(n_clusters=k, init='k-means++')
@@ -47,16 +47,16 @@ def kMeans(dataSet,clustercents,k,distMeas=distEclud,iter = 300):
             if clusterAssment[i,0] != minIndex: 
                 clusterChanged = True
             clusterAssment[i,:] = minIndex,minDist**2
-        print clustercents
-        print clusterAssment
+#         print clustercents
+#         print clusterAssment
         for cent in xrange(k):#recalculate clustercents
             ptsInClust = dataSet[nonzero(clusterAssment[:,0].A==cent)[0]]#get all the point in this cluster
-            print 'class_ %d:  %d'%(cent, len(ptsInClust))
+#             print 'class_ %d:  %d'%(cent, len(ptsInClust))
             if len(ptsInClust)>0:
-                print mean(ptsInClust,axis=0)
+#                 print mean(ptsInClust,axis=0)
                 clustercents[cent,:] = mean(ptsInClust, axis=0) #assign centroid to mean
-    print 'iteration number: %d' % (100-iter)
-    return clustercents, clusterAssment   
+#     print 'iteration number: %d' % (100-iter)
+    return clustercents
 def biKmeans(dataSet, k,distMeans = distEclud):  
     numSamples = dataSet.shape[0]  
     # first column stores which cluster this sample belongs to,  
@@ -107,17 +107,17 @@ def biKmeans(dataSet, k,distMeans = distEclud):
     print 'Congratulations, cluster using bi-kmeans complete!'  
     return mat(centList), clusterAssment
     
-if __name__ == '__main__':  
-    path = "E:/SinaSIFT"
-    files = get_file_list(path)
-    data0 = readData(files[0])
-    k=10
-    centroid = randcenters(data0,k)
-    for filename in files:
-        print filename
-        data = readData(filename)
-        centroid,clusterAssment = kMeans(data,centroid,k,iter=100)
-    print centroid
+# if __name__ == '__main__':  
+#     path = "E:/SinaSIFT"
+#     files = get_file_list(path)
+#     data0 = readData(files[0])
+#     k=10
+#     centroid = randcenters(data0,k)
+#     for filename in files:
+#         print filename
+#         data = readData(filename)
+#         centroid,clusterAssment = kMeans(data,centroid,k,iter=100)
+#     print centroid
     #print clusterAssment
     
     

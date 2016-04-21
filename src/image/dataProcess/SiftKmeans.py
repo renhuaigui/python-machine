@@ -13,7 +13,7 @@ import numpy as np
 class sift_cluster(object):
     def __init__(self,data):
         '''
-        data:是一个字典，key是uid, value:sift聚类的结果
+        data:是一个字典，其中key是uid, value:sift聚类的结果
         '''
         self.data = data
 

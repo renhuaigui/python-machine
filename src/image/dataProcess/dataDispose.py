@@ -10,7 +10,7 @@ from data_pickle import *
 import os
 from calCDF import *
 
-def dispose(data,target):
+def dispose(olddata):
     '''
     Parameters
     ----------
@@ -19,31 +19,41 @@ def dispose(data,target):
          计算每个用户的所有特征列的平均值
        返回用户对应的数据和用户ID
     '''
+    data = olddata.data
+    target = olddata.target
+    oldsift = olddata.siftdata
     userdata = {}
     label ={}
     dataset = []
     uidlist = target.T[2]
+    siftdata =[]
+    sift = {}
 #     pltCDF(data.T[45][:])
     for i in range(len(uidlist)):
         #print uidlist[i]
         if uidlist[i] in userdata:
             userdata[uidlist[i]].append(data[i].tolist())
+            sift[uidlist[i]].append(oldsift[i].tolist())
         else :
             userdata[uidlist[i]] = [data[i].tolist()]
+            sift[uidlist[i]] = [oldsift[i].tolist()]
     user = []
     for key in userdata:
         #print key
         userdata[key] = np.array(userdata[key])
-        
+        sift[key] = np.array(sift[key])
         userdata[key] = map(np.mean, zip(userdata[key].T))
+        sift[key] = map(np.mean, zip(sift[key].T))
 #         print userdata[key]
         dataset.append(userdata[key])
+        siftdata.append(sift[key])
         
-        user.append(int(key))
+        user.append(key)
         #print userdata[key]
     user = map(int,user)
     label['uid'] = user
     dataset = np.array(dataset)
+    siftdata = np.array(siftdata)
     
     gender = map(int,dataset.T[48][:])
     label['gender']= gender#性别标签
@@ -105,11 +115,11 @@ def dispose(data,target):
     followProb = min_max_scaler.fit_transform(dataset.T[56][:])
     
 
-    forwardEntropy = calEntropy(dataset.T[42][:])
-    commentEntropy = calEntropy(dataset.T[43][:])
-    heartEntropy = calEntropy(dataset.T[44][:])
-    picturNumEntropy =calEntropy(dataset.T[54][:])
-    followEntropy =calEntropy(dataset.T[56][:])
+    forwardEntropy = calEntropy(forwardProb)
+    commentEntropy = calEntropy(commentProb)
+    heartEntropy = calEntropy(heartProb)
+    picturNumEntropy =calEntropy(picturNumProb)
+    followEntropy =calEntropy(followProb)
 
     forwardWight = (1-forwardEntropy)/(5-forwardEntropy-commentEntropy-heartEntropy-picturNumEntropy-followEntropy)
     commentWight = (1-commentEntropy)/(5-forwardEntropy-commentEntropy-heartEntropy-picturNumEntropy-followEntropy)
@@ -123,7 +133,7 @@ def dispose(data,target):
 #     for i in range(len(dataset.T[54])):
 #         print user[i],dataset.T[54][i],dataset.T[59][i]
     print dataset.T[54]
-    pltCDF(influencetr)
+#     pltCDF(influencetr)
     for i in range(len(user)):
         if dataset.T[59][i]<=0.01:
             influence_two.append(0)
@@ -135,11 +145,11 @@ def dispose(data,target):
             influence.append(1)
         else:
             influence.append(2)
-        if influencetr[i]<=0.03:
+        if influencetr[i]<=0.001:
             user_influence.append(0)
         else:
             user_influence.append(1)
-        if dataset.T[54][i]<=10000:
+        if dataset.T[54][i]<=1000:
             f_influence.append(0)
         else:
             f_influence.append(1)        
@@ -147,17 +157,47 @@ def dispose(data,target):
     label['influence_two'] = influence_two
     label['user_influence'] = user_influence
     label['f_influence'] = f_influence
-    print influencetr
-    print len(dataset),len(dataset[0]),len(influencetr)
+#     print influencetr
+#     print len(dataset),len(dataset[0]),len(influencetr)
 #     pltCDF(influencetr)
     dataset =np.column_stack((dataset,influencetr))
-    print len(dataset),len(dataset.T[0])
-    print dataset.T[63]
+    print dataset.shape,target.shape,siftdata.shape
     '''
     dataset:返回处理后的数据
     label：返回处理后的标签
     '''   
-    return dataset,label
+    return dataset,label,siftdata
+
+def disposeSiftVisualWord(oldata):
+    cf = open("E:/Desktop/Image/SVMData/sina/label/content.txt")
+    content = []
+    visualword =[]
+    uids = []
+    siftdatas ={}
+    for line  in cf.readlines():
+        datatemp = line.strip().split(',')
+        content.append(datatemp)
+    cf.close()
+    content = np.array(content)
+    data = oldata.visualword
+    mids = content.T[1].tolist()
+    for i in range(len(data)):
+        mid = data[i][1]
+        uid = content[mids.index(mid)][0]
+        if uid in siftdatas:
+            siftdatas[uid].append(data[i][2].tolist())
+        else:
+            siftdatas[uid] = [data[i][2].tolist()]
+        #print siftdatas[uid]
+    for key in siftdatas:
+    
+        siftdatas[key] = np.array(siftdatas[key])
+        siftdatas[key] = map(np.mean, zip(siftdatas[key].T))
+        visualword.append(siftdatas[key])
+        uids.append(key)
+    return uids,np.array(visualword)
+        
+        
 
 def calEntropy(data):
     dataProb = data/data.sum()
@@ -201,7 +241,7 @@ def get_files(path):
     return os.listdir(path)
 
 if __name__ == '__main__':
-    
+
 #     siftpath = 'E:/SinaSIFT'
 #     print get_files(siftpath)
 #     print len(get_files(siftpath)) 
@@ -209,11 +249,11 @@ if __name__ == '__main__':
 
 
     #统计每个用户的数据均值
-    path = "E:/Desktop/Image/SVMData/sina/data/img_pickle.data"
-    writePath = "E:/Desktop/Image/SVMData/sina/data/user_img_pickle1.data"
-    dataset = pickle.load(open(path,"rb"))
-    data,target=dispose(dataset.data, dataset.target)
-    dataset=dataPickle(data,target)
+#     path = "E:/Desktop/Image/SVMData/sina/data/img_pickle.Siftdata"
+#     writePath = "E:/Desktop/Image/SVMData/sina/data/user_img_pickle.Siftdata"
+#     dataset = pickle.load(open(path,"rb"))
+#     data,target,sift=dispose(dataset)
+#     dataset=dataPickle().pickledata(data,target,sift)
 #     pickle.dump(dataset,open(writePath,"wb"),True)
 
     

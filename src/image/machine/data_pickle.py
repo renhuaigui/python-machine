@@ -14,6 +14,7 @@ import cPickle as pickle
 # sys.setdefaultencoding( "utf-8" )
 
 class dataPickle(object):
+    data = None
     def __init__(self,data,target=None):
         self.data = data
         self.target = target
